@@ -1,7 +1,9 @@
+import re
 import typing as t
 from pathlib import Path
 
 import joblib
+import numpy as np
 import pandas as pd
 from sklearn.pipeline import Pipeline
 
@@ -9,14 +11,50 @@ from classification_model import __version__ as _version
 from classification_model.config.core import DATASET_DIR, TRAINED_MODEL_DIR, config
 
 
-def load_dataset(file_name: str) -> pd.DataFrame:
-    dataframe = pd.read_csv(Path(f"{DATASET_DIR}/{file_name}"))
-    return dataframe
-    # dataframe["MSSubClass"] = dataframe["MSSubClass"].astype("O")
+def get_first_cabin(row):
+    """Retain only the first cabin if more than
+    1 are available per passenger.
+    """
+    try:
+        return row.split()[0]
+    except:
+        return np.nan
 
-    # rename variables beginning with numbers to avoid syntax errors later
-    # transformed = dataframe.rename(columns=config.model_config.variables_to_rename)
-    # return transformed
+
+def get_title(passenger):
+    """Extracts the title (Mr, Ms, etc) from the name variable"""
+
+    line = passenger
+    if re.search("Mrs", line):
+        return "Mrs"
+    elif re.search("Mr", line):
+        return "Mr"
+    elif re.search("Miss", line):
+        return "Miss"
+    elif re.search("Master", line):
+        return "Master"
+    else:
+        return "Other"
+
+
+def pre_pipeline_preparation(data: pd.DataFrame) -> pd.DataFrame:
+    data = data.copy()
+    data = data.replace("?", np.nan)
+
+    data["Cabin"] = data["Cabin"].apply(get_first_cabin)
+    data["Title"] = data["Name"].apply(get_title)
+    data["Fare"] = data["Fare"].astype("float")
+    data["Age"] = data["Age"].astype("float")
+
+    data = data.drop(labels=["Name", "Ticket"], axis=1)
+    return data
+
+
+def load_dataset(file_name: str) -> pd.DataFrame:
+    data = pd.read_csv(Path(f"{DATASET_DIR}/{file_name}"))
+    transformed = pre_pipeline_preparation(data=data)
+
+    return transformed
 
 
 def save_pipeline(pipeline_to_persist: Pipeline) -> None:

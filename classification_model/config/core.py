@@ -35,9 +35,9 @@ class ModelConfig(BaseModel):
     features: Sequence[str]
     test_size: float
     random_state: int
-    # numerical_vars: Sequence[str]
-    # categorical_vars: Sequence[str]
-    # cabin_vars: Sequence[str]
+    numerical_vars: Sequence[str]
+    categorical_vars: Sequence[str]
+    cabin_vars: Sequence[str]
 
 
 class Config(BaseModel):

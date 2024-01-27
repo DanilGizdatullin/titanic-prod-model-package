@@ -57,6 +57,11 @@ def load_dataset(file_name: str) -> pd.DataFrame:
     return transformed
 
 
+def load_raw_dataset(file_name: str) -> pd.DataFrame:
+    data = pd.read_csv(Path(f"{DATASET_DIR}/{file_name}"))
+    return data
+
+
 def save_pipeline(pipeline_to_persist: Pipeline) -> None:
     """Persist the pipeline.
     Saves the versioned model, and overwrites any previous

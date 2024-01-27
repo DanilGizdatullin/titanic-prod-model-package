@@ -42,9 +42,8 @@ class ModelConfig(BaseModel):
 
 class Config(BaseModel):
     """Master config object."""
-    model_config = ConfigDict(
-        protected_namespaces=()
-    )
+
+    model_config = ConfigDict(protected_namespaces=())
     app_conf: AppConfig
     model_conf: ModelConfig
 
